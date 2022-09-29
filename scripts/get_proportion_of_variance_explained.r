@@ -25,7 +25,7 @@ if(length(args) < 3) {
           )
    threads <- as.numeric(args[3])
 
-   #--- fucntion to compute pve
+   #--- function to compute pve
    get.pve <- function(
       beta = effect_size, 
       se = standard_error_of_effect_size, 
