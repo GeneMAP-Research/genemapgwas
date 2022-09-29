@@ -53,7 +53,7 @@ if(length(args) < 3) {
       df$pve[snp] <- get.pve(
                         beta = df$BETA[snp], 
                         se = df$SE[snp], 
-                        maf = df$Allele2_freq[snp], 
+                        maf = df$MAF[snp], 
                         n = df$N[snp]
                     )
    }
