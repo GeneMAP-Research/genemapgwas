@@ -10,7 +10,7 @@ args <- commandArgs(TRUE)
 
 if(length(args) < 3) {
    message("\nUsage: get_proportion_of_variance_explianed.r [input] [outprefix] [threads]\n")
-   message("\tinput must contain the following columns with header names as in brackets [case-sensitive]:")
+   message("\tinput must contain the following columns with header names as in brackets [case-insensitive]:")
    message("\teffect size (beta), standard error (se), minor allele frequency (maf), sample size (n)\n")
    quit(save = "no")
 } else {
