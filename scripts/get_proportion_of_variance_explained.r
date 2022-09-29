@@ -62,7 +62,7 @@ if(length(args) < 3) {
    fwrite(
       df, 
       out, 
-      nThread = 24, 
+      nThread = threads, 
       col.names = T, 
       row.names = F, 
       sep = " ", 
