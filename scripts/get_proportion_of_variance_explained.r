@@ -32,7 +32,7 @@ if(length(args) < 3) {
       maf = minor_allele_freq, 
       n = sample_size
    ) { 
-      numerator <- ((2*(beta)^2)*maf)*(1-maf)
+      numerator <- (2*(beta^2))*(maf*(1-maf))
       denomenator <- numerator + (se^2)*(2*n)*maf*(1-maf)
       pve <- numerator/denomenator
       return(pve) 
