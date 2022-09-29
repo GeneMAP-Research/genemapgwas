@@ -1,40 +1,72 @@
 #!/usr/bin/env Rscript
 
-########################################################
+###############################################################
 ##
-## Calculating Proportion of Variance explained per SNP
+## Calculating proportion of variance explained (pve) per SNP
 ##
 ##
 
+args <- commandArgs(TRUE)
 
+if(length(args) < 3) {
+   message("\nUsage: get_proportion_of_variance_explianed.r [input] [outprefix] [threads]\n")
+   message("\tinput must contain the following columns with header names as in brackets [case-sensitive]:")
+   message("\teffect size (beta), standard error (se), minor allele frequency (maf), sample size (n)\n")
+   quit(save = "no")
+} else {
 
-require(data.table)
-#require(qqman)
+   require(data.table)
+  
+   #--- get parameter values
+   f <- args[1]
+   out <- paste0(
+	     args[2], 
+	     "_with_pve.txt.gz"
+          )
+   threads <- as.numeric(args[3])
 
-df <- fread('/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/batchassoc/saige/cm/qt/output/cm_saige_unimputed_for_pve.txt.gz', h = T, nThread = 24)
+   #--- create fucntion to compute pve
+   get.pve <- function(
+      beta = effect_size, 
+      se = standard_error_of_effect_size, 
+      maf = minor_allele_freq, 
+      n = sample_size
+   ) { 
+      numerator <- ((2*(beta)^2)*maf)*(1-maf)
+      denomenator <- numerator + (se^2)*(2*n)*maf*(1-maf)
+      pve <- numerator/denomenator
+      return(pve) 
+   }
+   
+   #--- load data
+   df <- fread(
+            f,
+            h = T,
+            nThread = threads
+         )
 
-get.pve <- function(
-   beta = effect_size, 
-   se = standard_error_of_effect_size, 
-   maf = minor_allele_freq, 
-   n = sample_size
-) { 
-   numerator <- ((2*(beta)^2)*maf)*(1-maf)
-   denomenator <- numerator + (se^2)*(2*n)*maf*(1-maf)
-   pve <- numerator/denomenator
-   return(pve) 
+   #--- ensure column names are in uppercase
+   colnames(df) <- toupper(colnames(df))
+
+   #--- compute pve for each SNP and store in a new column called pve
+   for(snp in 1:nrow(df)) {
+      df$pve[snp] <- get.pve(
+                        beta = df$BETA[snp], 
+                        se = df$SE[snp], 
+                        maf = df$Allele2_freq[snp], 
+                        n = df$N[snp]
+                    )
+   }
+   
+   #--- save results to new file
+   fwrite(
+      df, 
+      out, 
+      nThread = 24, 
+      col.names = T, 
+      row.names = F, 
+      sep = " ", 
+      quote = F
+   )
+   
 }
-
-
-for(snp in 1:nrow(df)) {
-   df$pve[snp] <- get.pve(
-                     beta = df$BETA[snp], 
-                     se = df$SE[snp], 
-                     maf = df$Allele2_freq[snp], 
-                     n = df$N[snp]
-                 )
-}
-
-fwrite(df, "/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/batchassoc/saige/cm/qt/output/cm_saige_unimputed_with_pve.txt.gz", nThread = 24, col.names=T, row.names=F, sep=" ", quote=F)
-
-print(head(df), quote=F)
