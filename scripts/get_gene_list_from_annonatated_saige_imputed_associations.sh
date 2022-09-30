@@ -21,7 +21,7 @@ else
         -f '%CHROM\t%POS\t%CHROM:%POS\t%ID\t%REF/%ALT\t%INFO/AF\t%INFO/R2\t%INFO/N\t%INFO/BETA\t%INFO/SE\t%INFO/P\t%INFO/Gene.refGene\t%INFO/Gene.knownGene\n' \
         ${ann} | \
         sed 's/chr//2' | \
-        sed '1 i CHR\tBP\tCHR:POS\tSNPID\tREF/ALT\tAF\tImputationInfo\tSAMPLESIZE\tBETA\tSE\tP\trefGene\tknownGene' | \
+        sed '1 i CHR\tBP\tCHR:POS\tSNPID\tREF/ALT\tMAF\tImputationInfo\tN\tBETA\tSE\tP\trefGene\tknownGene' | \
         sed 's|\\x3b|-|g' | \
         tee ${ann}.tsv | \
         sed 's/\t/,/g' \
