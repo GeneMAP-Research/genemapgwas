@@ -18,12 +18,19 @@ else
 
     bcftools \
         query \
-        -f '%CHROM\t%POS\t%CHROM:%POS\t%ID\t%REF/%ALT\t%INFO/AF\t%INFO/MR\t%INFO/N\t%INFO/BETA\t%INFO/SE\t%INFO/P\t%INFO/Gene.refGene\t%INFO/Gene.knownGene\n' \
+        -f '%CHROM\t%POS\t%CHROM:%POS\t%ID\t%INFO/avsnp150\t%REF/%ALT\t%INFO/AF\t%INFO/MR\t%INFO/N\t%INFO/BETA\t%INFO/SE\t%INFO/P\t%INFO/pBH\t%INFO/Gene.refGene\t%INFO/Gene.knownGene\t%INFO/cytoBand\t%INFO/gwasCatalog\n' \
         ${ann} | \
         sed 's/chr//2' | \
-        sed '1 i CHR\tBP\tCHR:POS\tSNPID\tREF/ALT\tAF\tMissingRate\tSAMPLESIZE\tBETA\tSE\tP\trefGene\tknownGene' | \
-        sed 's|\\x3b|-|g' | \
+        awk '$12 <= 5e-04' | \
+        sed '1 i CHR\tBP\tCHR:POS\tSNPID\tRSID\tREF/ALT\tMAF\tMissingRate\tN\tBETA\tSE\tP\tpBH\trefGene\tknownGene\tcytoBand\tgwasCatalog' | \
+        sed 's|\\x3[bd]|-|g' | \
         tee ${ann}.tsv | \
-        sed 's/\t/,/g' \
-        > ${ann}.csv
+        sed 's/\t/;/g' | \
+        tee ${ann}.csv | \
+        sed 's/;/\t/g' | \
+        awk '$13 <= 0.10' | \
+        sed '1 i CHR\tBP\tCHR:POS\tSNPID\tRSID\tREF/ALT\tMAF\tMissingRate\tN\tBETA\tSE\tP\tpBH\trefGene\tknownGene\tcytoBand\tgwasCatalog' | \
+        tee ${ann}.fdr0.10.tsv | \
+        sed 's/\t/;/g' \
+        > ${ann}.fdr0.10.csv
 fi

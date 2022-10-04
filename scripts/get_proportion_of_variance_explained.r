@@ -42,6 +42,7 @@ if(length(args) < 3) {
    df <- fread(
             f,
             h = T,
+            fill = T,
             nThread = threads
          )
 
