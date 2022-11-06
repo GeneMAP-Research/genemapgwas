@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ $# -lt 4 ]; then
+if [ $# -lt 5 ]; then
    echo "Usage: lookup_associations.sh [input] [chrom] [position] [lookup-size (e.g. 50000)] [output-prefix]"
 else
    data=$1; chrom=$2; pos=$3; size=$(( $4/2 )); out=$5
