@@ -8,10 +8,10 @@ else
       head -1 > ${out}_lookup.txt
 
    zcat ${data} | \
-      awk \
-         -v chr="$chrom" \
-         -v bp="$pos" \
-         -v lsize="$size" \
-         '( $1 == chr ) && ( $2 >= bp-lsize && $2 <= bp+lsize )' \
-         >> ${out}_lookup.txt
+   awk \
+      -v chr="$chrom" \
+      -v bp="$pos" \
+      -v lsize="$size" \
+      '( $1 == chr ) && ( $2 >= bp-lsize && $2 <= bp+lsize )' \
+      >> ${out}_lookup.txt
 fi
