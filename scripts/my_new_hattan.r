@@ -4,18 +4,25 @@ require(data.table)
 #require(tidyverse)
 require(qqman)
 
-cmtop <- fread('/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/batchassoc/saige/cm/qt/output/cm_topmed_imputed.assoc.gz.qqman.txt.gz', h=T, nThread=24)
-cmtop <- cmtop[cmtop$CHR != "X", ]
+all.assoc <- fread("~/esoh/data/sadaccgwas/writeup/figures/multi_manhattan.txt.gz", h=T, nThread=10)
+
+#cmtop <- fread('/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/batchassoc/saige/cm/qt/output/cm_topmed_imputed.assoc.gz.qqman.txt.gz', h=T, nThread=24)
+cmtop <- all.assoc[ all.assoc$pop == "cm", ]
+cmtop <- cmtop[cmtop$CHR != "X" || cmtop$CHR != 23, ]
 cmtop$CHR <- as.numeric(cmtop$CHR)
 cmtop_ymax <- ceiling(max(-log10(cmtop$P)))+2
 
-cmtzcaapa <- fread('/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/cam_tz_merge/meta_analysis/formatted_for_qqman/cm_tz_caapa_for_qqman.txt.gz', h=T, nThread=24)
+#cmtzcaapa <- fread('/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/cam_tz_merge/meta_analysis/formatted_for_qqman/cm_tz_caapa_for_qqman.txt.gz', h=T, nThread=24)
+cmtzcaapa <- all.assoc[ all.assoc$pop == "cm_tz", ]
 cmtzcaapa_ymax <- ceiling(max(-log10(cmtzcaapa$P)))+2
 
-cmallcustom <- fread('/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/cam_tz_merge/meta_analysis/formatted_for_qqman/cm_tz_all_aa_custom_for_qqman.txt.gz', h=T, nThread=24)
+#cmallcustom <- fread('/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/cam_tz_merge/meta_analysis/formatted_for_qqman/cm_tz_all_aa_custom_for_qqman.txt.gz', h=T, nThread=24)
+cmallcustom <- all.assoc[ all.assoc$pop == "cm_tz_bae", ]
 cmallcustom <- cmallcustom[cmallcustom$CHR != "X", ]
 cmallcustom$CHR <- as.numeric(cmallcustom$CHR)
 cmallcustom_ymax <- ceiling(max(-log10(cmallcustom$P)))+2
+
+rm(all.assoc)
 
 #df <- fread("cm_hbf_gwas_non_imputed_saige_assoc.txt.gz", h=T, nThread=15)
 #d <- df[, c(1:3,13)]
@@ -26,7 +33,7 @@ cmallcustom_ymax <- ceiling(max(-log10(cmallcustom$P)))+2
 #cf <- layout(matrix(c(1:23), 1,23, byrow=F), TRUE)
 #layout.show(cf)
 
-png("some_test_manhattan_3.png", height = 16, width = 25, units = "cm", res = 300, pointsize = 14)
+png("all_manhattan_3.png", height = 16, width = 25, units = "cm", res = 300, pointsize = 14)
 
 # layout(matrix(c(1:23), 1,23, byrow=F), TRUE)
 # par(mar = c(4,4,1,1), cex = 1)
