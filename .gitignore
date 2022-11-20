@@ -1,0 +1,2 @@
+nextflow_*
+submit_nextflow_job.sbatch
