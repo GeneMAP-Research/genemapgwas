@@ -1,2 +1,2 @@
-# gwas_scripts
+# gwas workflow
 short scripts in my gwas pipeline
