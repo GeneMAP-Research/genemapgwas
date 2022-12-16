@@ -9,7 +9,7 @@ else
    cd ${jobid}-results
    curl \
       -H "X-Auth-Token: $TOKEN" https://imputationserver.sph.umich.edu/api/v2/jobs/${jobid} | \
-      jq \
+      jq . \
       > ${jobid}_status.json
 
    # get quality control report (first output paramter)
