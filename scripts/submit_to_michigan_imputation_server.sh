@@ -56,7 +56,7 @@ echo """  -F \"r2Filter=${filter}\"
 
    echo -e "\nJob created with ID: ${jobid}\n"
    sleep 1
-   echo -e "\nSubmit the job ./misjobs/${jobid}.sh\n"
+   echo -e "\nSubmitting the job ./misjobs/${jobid}.sh\n"
    ./misjobs/${jobid}.sh > ./misjobs/${jobid}.log
    echo ""
    cat ./misjobs/${jobid}.log
