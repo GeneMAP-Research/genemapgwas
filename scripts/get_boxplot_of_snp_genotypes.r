@@ -2,47 +2,75 @@
 
 args <- commandArgs(TRUE)
 
-if(length(args) < 2) {
-   print("", quote=F)
-   print("Usage: get_boxplot_of_snp_genotype.r [SNP-genotype-file] [plot-title]", quote=F)
-   print("NB: File must end with '.txt'", quote=F)
-   print("", quote=F)
+if(length(args) < 3) {
+   message("\nUsage: get_boxplot_of_snp_genotype.r [SNP-genotype-file] [pheno-file] [plot-title]\n")
+   message("\tSNP-genotype-file: File must end with '.txt' and contain header (FID Genotype RefAlt)\n")
+   message("\tpheno-file: must contain sample and phenotype headings as FID and PHENO\n")
    quit(save="no")
 } else {
    gt_file <- args[1]
-   plt_title <- args[2]
+   plt.title <- args[3]
+   phenofile <- args[2]
+   out_svg <- gsub(".txt", ".svg", gt_file)
    out_png <- gsub(".txt", ".png", gt_file)
-   pheno <- read.table("~/projects/gwas/hbf/famfiles/hbf.fam.with.header.tsv", h=T)
-   jazf_gt <- read.table(gt_file, h=T)
-   jazf_gt$Genotype <- as.factor(jazf_gt$Genotype)
-   jazf_gt_hbf <- merge(jazf_gt, pheno, by = "FID", sort = F)
-   hom_ref_gt_code <- unique(jazf_gt_hbf[jazf_gt_hbf$Genotype=="11",]$Genotype)
-   hom_ref_gt <- unique(jazf_gt_hbf[jazf_gt_hbf$Genotype=="11",]$RefAlt)
-   hom_alt_gt_code <- unique(jazf_gt_hbf[jazf_gt_hbf$Genotype=="22",]$Genotype)
-   hom_alt_gt <- unique(jazf_gt_hbf[jazf_gt_hbf$Genotype=="22",]$RefAlt)
-   het_gt_code <- unique(jazf_gt_hbf[jazf_gt_hbf$Genotype=="12",]$Genotype)
-   het_gt <- unique(jazf_gt_hbf[jazf_gt_hbf$Genotype=="12",]$RefAlt)
+   pheno <- read.table(phenofile, h=T)
+   pheno <- pheno[ which(names(pheno) %in% c("FID", "PHENO")) ]
+   gtdata <- read.table(gt_file, h=T)
+   gtdata$Genotype <- as.factor(gtdata$Genotype)
+   gtdata_phenodata <- merge(gtdata, pheno, by = "FID", sort = F)
 
-   xlab_text <- paste0("Genotype ", 
-                       "(", 
-                       hom_ref_gt_code, " = ", hom_ref_gt, 
-                       ", ", 
-                       het_gt_code, " = ", het_gt, 
-                       ", ", 
-                       hom_alt_gt_code, " = ", hom_alt_gt,
-                       ")")
+   #print(head(gtdata_phenodata["Genotype"]))
+   #print(head(gtdata_phenodata["PHENO"]))
 
-   png(out_png)
-   plot( 
-      jazf_gt_hbf$Genotype, 
-      jazf_gt_hbf$HbF, 
-      pch = 21, 
-      bg = "brown", 
-      col = "lightblue", 
-      alpha=0.2,
-      main = plt_title,
-      xlab = xlab_text,
-      ylab = "HbF level (g/dl)"
-   )
+   hom_ref <- gtdata_phenodata[gtdata_phenodata$Genotype=="11",]
+   hom_ref_gt_code <- as.character(unique(hom_ref$Genotype))
+   hom_ref_gt <- as.character(unique(hom_ref$RefAlt))
+   count_hom_ref_gt <- as.character(length(hom_ref$RefAlt))
+
+   hom_alt <- gtdata_phenodata[gtdata_phenodata$Genotype=="22",]
+   hom_alt_gt_code <- as.character(unique(hom_alt$Genotype))
+   hom_alt_gt <- as.character(unique(hom_alt$RefAlt))
+   count_hom_alt_gt <- as.character(length(hom_alt$RefAlt))
+
+   het <- gtdata_phenodata[gtdata_phenodata$Genotype=="12",]
+   het_gt_code <- as.character(unique(het$Genotype))
+   het_gt <- as.character(unique(het$RefAlt))
+   count_het_gt <- as.character(length(het$RefAlt))
+
+   if(count_hom_ref_gt == 0) {
+      plt.info <- data.frame(hom_alt = c(hom_alt_gt_code, hom_alt_gt, count_hom_alt_gt), het = c(het_gt_code, het_gt, count_het_gt))
+   } else if(count_hom_alt_gt == 0) {
+      plt.info <- data.frame(hom_ref = c(hom_ref_gt_code, hom_ref_gt, count_hom_ref_gt), het = c(het_gt_code, het_gt, count_het_gt))
+   } else if(count_het_gt == 0) {
+      plt.info <- data.frame(hom_ref = c(hom_ref_gt_code, hom_ref_gt, count_hom_ref_gt), hom_alt = c(hom_alt_gt_code, hom_alt_gt, count_hom_alt_gt))
+   } else {
+      plt.info <- data.frame(hom_ref = c(hom_ref_gt_code, hom_ref_gt, count_hom_ref_gt), het = c(het_gt_code, het_gt, count_het_gt), hom_alt = c(hom_alt_gt_code, hom_alt_gt, count_hom_alt_gt))
+   }
+
+   print(plt.info)
+
+   plt.xlab <- c()
+   plt.legend <- c()
+   for(i in 1:ncol(plt.info)) {
+      plt.legend[i] <- paste0(plt.info[2,i], " (", plt.info[1,i], ") ", " = ", plt.info[3,i])
+   }
+
+   svg(out_svg, width=17, height=17, pointsize=25)
+   #png(out_png)
+      plot.new()
+      grid(lwd=0.8)
+      par(new=T)
+      boxplot(   
+         PHENO ~ Genotype,
+         data = gtdata_phenodata,
+         pch = 21,
+         bg = "brown",
+         col = "lightblue",
+         alpha=0.2,
+         main = plt.title,
+         xlab = "Genotype",
+         ylab = "HbF level (g/dl)"
+      )
+      legend("topright", legend=plt.legend, title = "Count", bty="n", title.col = "navy")
    dev.off()
 }

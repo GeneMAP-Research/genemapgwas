@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 4 ]; then
     echo ""
     echo "Wrapper for 'get_snp_genotypes.sh' and 'get_boxplot_of_snp_genotypes.r'"
     echo ""
-    echo "Usage: plot_genotypes.sh [vcf-file] [variants-file <chr:pos snpid genename>] [sample-file <one per line>]"
+    echo "Usage: plot_genotypes.sh [vcf-file] [variants-file <chr:pos snpid genename>] [sample-file <one per line>] [pheno-file]"
     echo ""
 else
-    vcf_file=$1; variants_file=$2; sample_file=$3
+    vcf_file=$1; variants_file=$2; sample_file=$3; pheno=$4
     #vcf_dir='/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/mergedBatches/imputed/union/'
     sample_dir='/mnt/lustre/groups/CBBI1243/KEVIN/gwasdata/mergedBatches/genotypesPlots/'
     script_dir="${HOME}/projects/gwas/scripts/"
@@ -31,7 +31,8 @@ else
     
         ${script_dir}get_boxplot_of_snp_genotypes.r \
             ${out}_${rsid}_genotypes.txt \
-            "${out}: $rsid"
+            ${pheno} \
+            "${rsid}"
     
     ((counter++))
     done < ${variants_file}  

@@ -7,7 +7,7 @@ if(length(args) < 7) {
    q(save="no")
 } else {
 
-library(susieR)
+require(susieR)
 require(data.table)
 
   sumstat <- args[1]
