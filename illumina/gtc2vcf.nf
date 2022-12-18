@@ -8,6 +8,7 @@ include {
     getManisfestCsv;
     getClusterFile;
     convertGtc2vcf;
+    convertGtc2vcfHg38;
 } from "${projectDir}/modules/gtcalls.nf"
 
 workflow {
@@ -20,5 +21,7 @@ workflow {
     //    .combine(cluster)
     //    .combine(intensity)
     //    .set { gtc_input }
-    convertGtc2vcf()
+
+    //convertGtc2vcf()
+    convertGtc2vcfHg38()
 }

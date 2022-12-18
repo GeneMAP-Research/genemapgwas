@@ -20,5 +20,5 @@ workflow {
         .combine(cluster)
         .combine(intensity)
         .set { gtcall_input }
-    getGtc(gtcall_input)
+    gtc_list = getGtc(gtcall_input).collect().flatten().view()
 }

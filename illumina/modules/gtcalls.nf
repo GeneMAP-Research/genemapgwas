@@ -28,6 +28,7 @@ def getChainFile() {
 
 process getGtc() {
     tag "processing ${intensity}"
+    label 'idat_to_gtc'
     label 'gencall'
     input:
         tuple \
@@ -53,6 +54,20 @@ process convertGtc2vcf() {
             path("${params.output_prefix}_genotype_stats.tsv")
     script:
         template "convert_gtc2vcf.sh"
+}
+
+process convertGtc2vcfHg38() {
+    tag "processing GTC2VCF"
+    label 'gencall'
+    label 'gtc_to_vcf'
+    output:
+        publishDir path: "${params.output_dir}/vcf", mode: 'copy'
+        tuple \
+            path("${params.output_prefix}.vcf.gz"), \
+            path("${params.output_prefix}.vcf.gz.tbi"), \
+            path("${params.output_prefix}_genotype_stats.tsv")
+    script:
+        template "convert_gtc2vcf_hg38.sh"
 }
 
 process liftBuildToHg38() {

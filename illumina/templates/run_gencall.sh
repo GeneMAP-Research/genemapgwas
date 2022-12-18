@@ -4,7 +4,7 @@ iaap-cli \
    gencall \
    ${manifest} \
    ${cluster} \
-   ${workDir} \
+   . \
    --idat-folder ${intensity} \
    --output-gtc \
    --gender-estimate-call-rate-threshold 0.95 \
