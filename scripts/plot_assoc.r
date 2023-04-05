@@ -18,8 +18,10 @@ if (length(args) < 2) {
      require(data.table)
 
      assoc <- fread(f, h=T, data.table=F, fill=T, nThread = 30)
+     assoc$P <- as.numeric(assoc$P)
      attach(assoc)
-     ylim_val <- ceiling(as.numeric(max(-log10(P))))+5
+     min_ylim_val <- floor(as.numeric(min(-log10(P))))
+     max_ylim_val <- ceiling(as.numeric(max(-log10(P))))+5
      #if(ylim_val >= 15 ) {
      #   ylim_val <- 20
      #} else if(ylim_val < 15 && ylim_val >= 10) {
@@ -28,7 +30,7 @@ if (length(args) < 2) {
      #   ylim_val <- 10 
      #}
     
-     print(paste0("max(ylim): ", ylim_val), quote=F)
+     print(paste0("max(ylim): ", max_ylim_val), quote=F)
      genomewide_line <- prettyNum(as.numeric(-log10(0.05/length(P))), digits = 3)
      print(paste0("Genome-wide threshold: ", genomewide_line), quote=F)
 
@@ -60,11 +62,11 @@ if (length(args) < 2) {
 
      attach(assoc)
      #png(png_plt_name, height = 540, width = 1200, units = "px", res = NA, pointsize = 15)
-     png(png_plt_name, height = 11, width = 25, units = "cm", res = 300, pointsize = 10)
+     png(png_plt_name, height = 11, width = 25, units = "cm", res = 300, pointsize = 9)
      par(mar=c(3,3,1,1))
      manhattan(assoc, 
-         ylim = c(0, ylim_val), 
-         col = c("gray60", "dodgerblue4"), 
+         ylim = c(min_ylim_val, max_ylim_val), 
+         col = c("coral", "dodgerblue4"), 
          genomewideline = F, 
          suggestiveline = F, 
          cex.axis = 0.6, 

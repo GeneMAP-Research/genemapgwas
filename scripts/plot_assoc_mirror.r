@@ -10,9 +10,9 @@ if (length(args) < 4) {
    quit(save="no")
 } else {
      result_a <- args[1]
-     result_a_name <- args[2]
+     result_a_name <- gsub(" ", "_", args[2])
      result_b <- args[3]
-     result_b_name <- args[4]
+     result_b_name <- gsub(" ", "_", args[4])
      data_names <- levels(as.factor(c(result_a_name, result_b_name)))
 
      png_plt_name <- paste0(result_a_name, "_", result_b_name, "_manhattan.png")
@@ -23,9 +23,11 @@ if (length(args) < 4) {
      require(data.table)
 
      assoc_a <- fread(result_a, h=T, data.table=F, fill=T, nThread = 24)
-     maxylim_a <- ceiling(as.numeric(-log10(min(assoc_a$P))))+5
+     minylim_a <- ceiling(as.numeric(-log10(max(assoc_a$P))))
+     maxylim_a <- ceiling(as.numeric(-log10(min(assoc_a$P))))+2
      assoc_b <- fread(result_b, h=T, data.table=F, fill=T, nThread = 24)
-     maxylim_b <- ceiling(as.numeric(-log10(min(assoc_b$P))))+5
+     minylim_b <- ceiling(as.numeric(-log10(max(assoc_b$P))))
+     maxylim_b <- ceiling(as.numeric(-log10(min(assoc_b$P))))+2
      
      print(paste0("max(ylim) ", result_a_name, ": ", maxylim_a), quote=F)
      print(paste0("max(ylim) ", result_b_name, ": ", maxylim_b), quote=F)
@@ -69,18 +71,18 @@ if (length(args) < 4) {
           data_a <- x
           data_b <- y
           #png(png_plt_name, height = 600, width = 1200, units = "px", res = NA, pointsize = 15)
-          png(png_plt_name, height = 15, width = 25, units = "cm", res = 300, pointsize = 10)
+          png(png_plt_name, height = 15, width = 28, units = "cm", res = 300, pointsize = 10)
           #pdf(pdf_plt_name, colormodel='cmyk')
           par(fig=c(0,1,0.41,1))
           print(paste0("Plotting manhattan for ", result_a_name, "..."), quote=F)
-          manhattan(data_a, ylim = c(0, maxylim_a), col = c("gray60", "dodgerblue4"), genomewideline = F, suggestiveline = F, cex.axis = 0.6, logp=T, xlab=NA)
-          mtext(text=result_a_name, side=3)
-          abline(h=c(-log10(1e-05), -log10(5e-08)), lty = 2, lwd = 0.9, col = c("blue","red"))
+          manhattan(data_a, ylim = c(minylim_a, maxylim_a), col = c("dodgerblue4", "coral"), genomewideline = F, suggestiveline = F, cex.axis = 0.8, logp=T, xlab=NA)
+          #mtext(text=result_a_name, side=3)
+          abline(h=c(-log10(1e-05), -log10(5e-08)), lty = 2, lwd = 0.7, col = c("blue","red"))
           par(fig=c(0,1,0,0.59), new=TRUE)
           print(paste0("Plotting manhattan for ", result_b_name, "..."), quote=F)
-          manhattan(data_b, ylim = rev(c(0, maxylim_b)), col = c("gray60", "dodgerblue4"), genomewideline = F, suggestiveline = F, cex.axis = 0.6, logp=T, xaxt='n', xlab=NA)
-          mtext(text=result_b_name, side=1)
-          abline(h=c(-log10(1e-05), -log10(5e-08)), lty = 2, lwd = 0.9, col = c("blue","red"))
+          manhattan(data_b, ylim = rev(c(minylim_b, maxylim_b)), col = c("dodgerblue4", "coral"), genomewideline = F, suggestiveline = F, cex.axis = 0.8, logp=T, xaxt='n', xlab=NA)
+          #mtext(text=result_b_name, side=1)
+          abline(h=c(-log10(1e-05), -log10(5e-08)), lty = 2, lwd = 0.7, col = c("blue","red"))
           dev.off()
      }
 

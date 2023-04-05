@@ -25,12 +25,20 @@ if(length(args)<4) {
      outsvg <- paste0(outprefix, "_imputation_accuracy.svg")
 
      f <- fread(metricfile, h=T, data.table=F, nThread=threads)
+     print(head(f))
      panels <- levels(unique(as.factor(f$panel)))
-     bin <- seq(from=0.00, to=0.5, by=binsize)
+     #max.maf <- round(max(f$maf)+0.05, 1)
+     max.maf <- max(f$maf)
+     min.maf <- min(f$maf)
+     print(max.maf)
+     print(min.maf)
+     bin <- seq(from=0.00, to=max.maf, by=binsize)
 
 
      #panels <- c("CUSTOM", "H3A", "AGR", "CAAPA", "TGP", "TOPMed"),
      colors <- c("dodgerblue", "lightblue", "darkolivegreen", "darkorange1", "seagreen3", "orchid3")
+     colors <- sample(colors, length(panels), replace=F)
+     colors <- c("lightblue", "orchid3", "seagreen3", "darkolivegreen")
      #colors <- RColorBrewer::brewer.pal(length(panels), "Dark2")
      panel_colors <- as.data.frame(panels, colors)
      panel_colors$col <- rownames(panel_colors)
@@ -40,7 +48,7 @@ if(length(args)<4) {
 
      #png(outpng, width=20, height=19, units="cm", res=300, points=12)
      svg(outsvg, width=8, height=8, pointsize=16)
-     plot(1, xlim=c(0, 0.5), ylim=c(0.75, 1), xlab=paste0("MAF bin: binsize = ", binsize), ylab="Mean imputation accuracy", type="l", lty=3)
+     plot(1, xlim=c(min.maf, max.maf), ylim=c(0.75, 1), xlab=paste0("MAF bin: binsize = ", binsize), ylab="Mean imputation accuracy", type="l", lty=3)
      for(panel in 1:length(panels)) {
 	 panel_metrics <- f[f$panel==panels[panel],]
 	 chrom <- levels(unique(as.factor(panel_metrics$chr)))

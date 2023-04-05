@@ -8,17 +8,31 @@ if(length(args) < 3) {
    message("\tpheno-file: must contain sample and phenotype headings as FID and PHENO\n")
    quit(save="no")
 } else {
+   require(ggplot2)
+
    gt_file <- args[1]
    plt.title <- args[3]
    phenofile <- args[2]
    out_svg <- gsub(".txt", ".svg", gt_file)
    out_png <- gsub(".txt", ".png", gt_file)
+   ggout_svg <- gsub(".txt", ".gg.svg", gt_file)
+   ggout_png <- gsub(".txt", ".gg.png", gt_file)
+   out_data <- gsub(".txt", "_withpheno.txt", gt_file)
    pheno <- read.table(phenofile, h=T)
    pheno <- pheno[ which(names(pheno) %in% c("FID", "PHENO")) ]
    gtdata <- read.table(gt_file, h=T)
    gtdata$Genotype <- as.factor(gtdata$Genotype)
    gtdata_phenodata <- merge(gtdata, pheno, by = "FID", sort = F)
 
+   write.table(
+      gtdata_phenodata, 
+      file=out_data, 
+      col.names=T, 
+      row.names=F, 
+      sep=" ", 
+      quote=F
+   )
+ 
    #print(head(gtdata_phenodata["Genotype"]))
    #print(head(gtdata_phenodata["PHENO"]))
 
@@ -69,8 +83,13 @@ if(length(args) < 3) {
          alpha=0.2,
          main = plt.title,
          xlab = "Genotype",
-         ylab = "HbF level (g/dl)"
+         ylab = "HbF (%)"
       )
       legend("topright", legend=plt.legend, title = "Count", bty="n", title.col = "navy")
    dev.off()
+
+   p <- ggplot(gtdata_phenodata, aes(x=RefAlt, y=PHENO, color=RefAlt)) + geom_violin() + theme_minimal()
+   p <- p + geom_boxplot(width=0.1) + theme_minimal() + labs(x="Genotype", y="HbF (%)", col="Genotype")
+   ggsave(plot = p, filename = ggout_png, device = 'png', dpi = 600)
+
 }

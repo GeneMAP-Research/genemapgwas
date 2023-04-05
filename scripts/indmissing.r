@@ -1,6 +1,12 @@
 #!/usr/bin/env Rscript
 
 args <- commandArgs(TRUE)
+
+if(length(args)<2) {
+  message("\nUsage: indmissing.r [het] [imis]\n")
+} else {
+
+#args <- commandArgs(TRUE)
 he <- args[1]
 imis <- args[2]
 oput <- paste0("mishet_", gsub(".het", ".png", args[1]))
@@ -48,3 +54,5 @@ write.table(fail_mis_qc[,1:2], file = "fail-mis.qc", row.names = F, col.names = 
 # Individuals with het.rate < 0.18 (previously 0.195) and individuals with het.rate > o.23 (previously 0.22)
 fail_het_qc=mishet[mishet$het.rate < hetlower | mishet$het.rate > hetupper, ]
 write.table(fail_het_qc[,1:2], file = "fail-het.qc", row.names = F, col.names = F, quote = F, sep = "\t")
+
+}

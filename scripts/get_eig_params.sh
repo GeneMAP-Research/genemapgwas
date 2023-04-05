@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ $# != 1 ]; then
-   echo "Usage: get_eig_params.sh [plink_ped_prefix]"
+if [ $# != 2 ]; then
+   echo "Usage: get_eig_params.sh [plink_ped_prefix] [phase_mode <YES|NO>]"
 else
-base="$1"
+base=$1; phase_mode=$2
 
 # ==> par.PED.PACKEDPED <==
 echo -e """genotypename:    ${base}.ped
@@ -17,7 +17,7 @@ indivoutname:    ${base}.pedind
 xregionname:	 /mnt/lustre/groups/CBBI1243/KEVIN/imputationReference/high-ld-regions.b37
 #pordercheck:	 YES
 #strandcheck:	 YES
-phasedmode:	 YES
+phasedmode:	 ${phase_mode}
 familynames:     NO
 numthreads:	 24""" > par.PED.PACKEDPED
 
@@ -30,7 +30,7 @@ genotypeoutname: ${base}.packedancestrymapgeno
 snpoutname:      ${base}.snp
 indivoutname:    ${base}.ind
 familynames:     NO
-phasedmode:      YES
+phasedmode:      ${phase_mode}
 numthreads:      24""" > par.PACKEDPED.PACKEDANCESTRYMAP
 
 # ==> par.PACKEDANCESTRYMAP.ANCESTRYMAP <==
@@ -41,7 +41,7 @@ outputformat:    ANCESTRYMAP
 genotypeoutname: ${base}.ancestrymapgeno
 snpoutname:      ${base}.snp
 indivoutname:    ${base}.ind
-phasedmode:      YES
+phasedmode:      ${phase_mode}
 numthreads:      24""" > par.PACKEDANCESTRYMAP.ANCESTRYMAP
 
 # ==> par.ANCESTRYMAP.EIGENSTRAT <==
@@ -52,6 +52,19 @@ outputformat:    EIGENSTRAT
 genotypeoutname: ${base}.eigenstratgeno
 snpoutname:      ${base}.snp
 indivoutname:    ${base}.ind
-phasedmode:      YES
+phasedmode:      ${phase_mode}
 numthreads:      24""" > par.ANCESTRYMAP.EIGENSTRAT
+
+# ==> par.EIGENSTRAT.PED <==
+echo -e """genotypename:    ${base}.eigenstratgeno
+snpname:         ${base}.snp
+indivname:       ${base}.ind
+outputformat:    PED
+genotypeoutname: ${base}.ped
+snpoutname:      ${base}.pedsnp
+indivoutname:    ${base}.pedind
+phasedmode:      ${phase_mode}
+numthreads:      24""" > par.EIGENSTRAT.PED
 fi
+
+
