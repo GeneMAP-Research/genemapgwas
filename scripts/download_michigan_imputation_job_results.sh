@@ -1,4 +1,9 @@
-TOKEN=$(cat michigan_imputation_server_api_token.txt)
+if [ ! -e "michigan_imputation_server_api_token.txt" ]; then
+   echo "API token file 'michigan_imputation_server_api_token.txt' not found!";
+   exit 1;
+else
+   TOKEN=$(cat michigan_imputation_server_api_token.txt);
+fi
 
 if [ $# -lt 1 ]; then
    echo -e "\nget_mis_job_status.sh [job id]\n"
@@ -31,7 +36,7 @@ else
    sleep 1
    imputationresults_id=$(jq '.outputParams[2].id' ${jobid}_status.json | sed 's|"||g')
    imputationresults_hash=$(jq '.outputParams[2].hash' ${jobid}_status.json | sed 's|"||g')
-#   curl -sL https://imputationserver.sph.umich.edu/get/${imputationresults_id}/${imputationresults_hash} | bash	# uncomment to download results
+   curl -sL https://imputationserver.sph.umich.edu/get/${imputationresults_id}/${imputationresults_hash} | bash	# uncomment to download results
 
    # get log files (fourth output paramter)
    echo "Downloading log files..."

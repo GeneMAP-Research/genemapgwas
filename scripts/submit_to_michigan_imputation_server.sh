@@ -1,12 +1,15 @@
 if [ ! -e "michigan_imputation_server_api_token.txt" ]; then
-   echo "API token file 'michigan_imputation_server_api_token.txt' not found!"
-   exit 1
+   echo "API token file 'michigan_imputation_server_api_token.txt' not found!";
+   exit 1;
+else
+   TOKEN=$(cat michigan_imputation_server_api_token.txt);
 fi
 
-TOKEN=$(cat michigan_imputation_server_api_token.txt)
-
 if [ $# -lt 5 ]; then
-   echo """
+   RED="\e[31m"
+   ENDCOLOR="\e[0m"
+
+   echo -e """
    Usage: submit_to_michigan_imputation_server.sh [vcf directory] [refpanel] [build] [population] [r2Filter <0 - 0.3>]
    
    	  vcf directory must contain only the VCF files to be processed
@@ -19,7 +22,7 @@ if [ $# -lt 5 ]; then
 
 	  r2Filter:               0 | 0.001 | 0.1 | 0.2 | 0.3
 
-          IMPORTANT:
+          ${RED}IMPORTANT!${ENDCOLOR}
           - CAAPA only supports 'AA' and 'mixed' populations
           - CAAPA does not support ChrX
 
@@ -59,6 +62,20 @@ echo """  -F \"r2Filter=${filter}\"
    echo -e "\nSubmitting the job ./misjobs/${jobid}.sh\n"
    ./misjobs/${jobid}.sh > ./misjobs/${jobid}.log
    echo ""
+
+   job_status=$(cat ./misjobs/${jobid}.log | jq '.success')
+
+   if [[ "${job_status}" == "false" ]]; then
+      echo ""
+      echo "Something went wrong! you job could not be submitted successfully."
+      echo "Have you updated you API token?"
+      echo "Login to the Michigan Imputation Server online, go to your profile and check if your API token expired."
+      echo "Revoke the expired token and create a new one."
+      echo ""
+
+      cat ./misjobs/${jobid}.log
+   fi
+
    cat ./misjobs/${jobid}.log
    echo -e "\n\nSee this message in the log file './misjobs/${jobid}.log'\n"
    rm ./misjobs/${jobid}.sh
