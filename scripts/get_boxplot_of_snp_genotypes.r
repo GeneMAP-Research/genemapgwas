@@ -3,7 +3,7 @@
 args <- commandArgs(TRUE)
 
 if(length(args) < 3) {
-   message("\nUsage: get_boxplot_of_snp_genotype.r [SNP-genotype-file] [pheno-file] [plot-title]\n")
+   message("\nUsage: get_boxplot_of_snp_genotype.r [SNP-genotype-file] [pheno-file] [pheno-name] [plot-title]\n")
    message("\tSNP-genotype-file: File must end with '.txt' and contain header (FID Genotype RefAlt)\n")
    message("\tpheno-file: must contain sample and phenotype headings as FID and PHENO\n")
    quit(save="no")
@@ -11,13 +11,14 @@ if(length(args) < 3) {
    require(ggplot2)
 
    gt_file <- args[1]
-   plt.title <- args[3]
+   phename <- args[3]
+   plt.title <- args[4]
    phenofile <- args[2]
-   out_svg <- gsub(".txt", ".svg", gt_file)
-   out_png <- gsub(".txt", ".png", gt_file)
-   ggout_svg <- gsub(".txt", ".gg.svg", gt_file)
-   ggout_png <- gsub(".txt", ".gg.png", gt_file)
-   out_data <- gsub(".txt", "_withpheno.txt", gt_file)
+   out_svg <- gsub(".txt", paste0("_with_", phename, ".svg"), gt_file)
+   out_png <- gsub(".txt", paste0("_with_", phename, ".png"), gt_file)
+   ggout_svg <- gsub(".txt", paste0("_with_", phename, ".gg.svg"), gt_file)
+   ggout_png <- gsub(".txt", paste0("_with_", phename, ".gg.png"), gt_file)
+   out_data <- gsub(".txt", paste0("_with_", phename, ".txt"), gt_file)
    pheno <- read.table(phenofile, h=T)
    pheno <- pheno[ which(names(pheno) %in% c("FID", "PHENO")) ]
    gtdata <- read.table(gt_file, h=T)
@@ -69,27 +70,60 @@ if(length(args) < 3) {
       plt.legend[i] <- paste0(plt.info[2,i], " (", plt.info[1,i], ") ", " = ", plt.info[3,i])
    }
 
-   svg(out_svg, width=17, height=17, pointsize=25)
-   #png(out_png)
-      plot.new()
-      grid(lwd=0.8)
-      par(new=T)
-      boxplot(   
-         PHENO ~ Genotype,
-         data = gtdata_phenodata,
-         pch = 21,
-         bg = "brown",
-         col = "lightblue",
-         alpha=0.2,
-         main = plt.title,
-         xlab = "Genotype",
-         ylab = "HbF (%)"
-      )
-      legend("topright", legend=plt.legend, title = "Count", bty="n", title.col = "navy")
-   dev.off()
+#   svg(out_svg, width=17, height=17, pointsize=25)
+#   #png(out_png)
+#      plot.new()
+#      grid(lwd=0.8)
+#      par(new=T)
+#      boxplot(   
+#         PHENO ~ Genotype,
+#         data = gtdata_phenodata,
+#         pch = 21,
+#         bg = "brown",
+#         col = "lightblue",
+#         alpha=0.2,
+#         main = plt.title,
+#         xlab = "Genotype",
+#         ylab = phename
+#      )
+#      legend("topright", legend=plt.legend, title = "Count", bty="n", title.col = "navy")
+#   dev.off()
+#
+#   p <- ggplot(gtdata_phenodata, aes(x=RefAlt, y=PHENO, color=RefAlt)) + geom_violin() + theme_minimal()
+#   p <- p + geom_boxplot(width=0.1) + theme_minimal() + labs(x="Genotype", y=phename, col="Genotype")
+#   ggsave(plot = p, filename = ggout_png, device = 'png', dpi = 600)
 
-   p <- ggplot(gtdata_phenodata, aes(x=RefAlt, y=PHENO, color=RefAlt)) + geom_violin() + theme_minimal()
-   p <- p + geom_boxplot(width=0.1) + theme_minimal() + labs(x="Genotype", y="HbF (%)", col="Genotype")
-   ggsave(plot = p, filename = ggout_png, device = 'png', dpi = 600)
+
+   #... NEW SCRIPT
+   p <- ggplot(
+     data = gtdata_phenodata,
+     mapping = aes(x=RefAlt, y=PHENO, fill=RefAlt)
+   )
+   
+   gp <- p +
+     geom_violin(
+       trim = T,
+       alpha = 0.3
+       ) +
+     geom_boxplot(
+       width = 0.1,
+       position = position_dodge(0.9)
+       ) +
+     ylab(label = phename) +
+     xlab(label = "Genotype") +
+     theme_bw() +
+     theme(
+       axis.text = element_text(size = 16),
+       legend.position = "none",
+       axis.title = element_text(size=16)
+     )
+   
+   ggsave(
+     gp,
+     filename = ggout_png,
+     height = 3,
+     width = 5
+)
+
 
 }
