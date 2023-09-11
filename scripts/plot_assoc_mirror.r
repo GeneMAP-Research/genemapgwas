@@ -50,8 +50,8 @@ if (length(args) < 4) {
      get_chr_labels <- function(x=assoc_result) {
           assoc <- x
           chr_labs <- unique(assoc$CHR)
-          if(length(chr_labs) == 22) {
-             chr_lab <- as.character(c(1:22))
+          if(length(chr_labs) < 23) {
+             chr_lab <- as.character(chr_labs)
           }
           if(length(chr_labs) == 23) {
              chr_lab <- as.character(c(1:22, "X"))

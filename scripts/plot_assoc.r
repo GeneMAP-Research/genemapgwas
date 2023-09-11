@@ -21,7 +21,7 @@ if (length(args) < 2) {
      assoc$P <- as.numeric(assoc$P)
      attach(assoc)
      min_ylim_val <- floor(as.numeric(min(-log10(P))))
-     max_ylim_val <- ceiling(as.numeric(max(-log10(P))))+5
+     max_ylim_val <- ceiling(as.numeric(max(-log10(P))))+2
      #if(ylim_val >= 15 ) {
      #   ylim_val <- 20
      #} else if(ylim_val < 15 && ylim_val >= 10) {
@@ -45,8 +45,8 @@ if (length(args) < 2) {
         assoc$CHR <- as.numeric(gsub("MT","25", assoc$CHR))
      }
      print(head(assoc))
-     if(length(chr_labs) == 22) {
-        chr_lab <- as.character(c(1:22))
+     if(length(chr_labs) < 23) {
+        chr_lab <- as.character(chr_labs)
      }
      if(length(chr_labs) == 23) {
         chr_lab <- as.character(c(1:22, "X"))
