@@ -9,8 +9,16 @@ workflow {
 	println "BPM     = ${params.manifest_bpm}"
 	println "CSV     = ${params.manifest_csv}"
 	println "CST     = ${params.cluster_file}"
-	println "FASTA   = ${params.fasta_ref}"
-	println "BAM     = ${params.bam_alignment_file}"												// if processing in build 38 (hg38), provide a bam alignment file
+	println "BVER	 = ${params.build_ver}"
+
+	if(params.build_ver == 'hg19') {
+		println "FASTA   = ${params.fasta_ref}"
+	}
+	else {
+		println "FASTA   = ${params.fasta_ref}"
+		println "BAM     = ${params.bam_alignment}"
+	}
+
 	println "NAME    = ${params.output_prefix}"
 	println "ODIR    = ${params.output_dir}"
 	println "ACCOUNT = ${params.account}"
@@ -62,5 +70,7 @@ process plink() {
 			--help \
 			--file
 
+
+		echo ${params.fasta_ref}
 		"""
 }
