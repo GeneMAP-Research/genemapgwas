@@ -62,7 +62,8 @@ process plink() {
 	label 'plink2'
 	label 'idat_to_gtc'
 	publishDir path: "${params.output_dir}/output"
-	debug true
+	//debug true
+	echo true
 
 	script:
 		"""
