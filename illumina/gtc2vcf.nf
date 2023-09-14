@@ -13,15 +13,20 @@ include {
 
 workflow {
 	println "\nILLUMINA GENOTYPE CALLING\n"
-	//manifest_bpm = getManisfestBpm()
-	//manifest_csv = getManisfestCsv()
-	//cluster = getClusterFile()
-	//gtcs = getGtcs()
-	//manifest_bpm
-	//    .combine(cluster)
-	//    .combine(intensity)
-	//    .set { gtc_input }
 
-	//convertGtc2vcf()
-	convertGtc2vcfHg38()
+	manifest_bpm = getManisfestBpm()
+	manifest_csv = getManisfestCsv()
+	cluster = getClusterFile()
+	gtcs = getGtcs()
+	manifest_bpm
+	    .combine(cluster)
+	    .combine(intensity)
+	    .set { gtc_input }
+
+	if(params.build_ver == 'hg19') {
+		convertGtc2vcf()
+	}
+	else {
+		convertGtc2vcfHg38()
+	}
 }

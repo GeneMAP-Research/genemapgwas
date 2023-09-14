@@ -1,32 +1,80 @@
-def getRef() {
-    retrun channel.fromPath(params.ref)
+def get_ref() {
+    if( params.fasta_ref == "" ) {
+        warning: println "\nWARNING: You have not provided a FASTA reference. \n\
+        You will not be able to process GTC to VCF!\n"
+    } 
+    else {
+        retrun channel.fromPath(params.ref)
+    }
 }
 
-def getManisfestBpm() {
-    return channel.fromPath(params.manifest_bpm)
+def check_bam_alignment() {
+    if( params.bam_alignment == "" ) {
+        error: println "ERROR: Please provide a value for 'bam_alignment' in the 'configs/params.config' file"
+    }
 }
 
-def getManisfestCsv() {
-    return channel.fromPath(params.manifest_csv)
+def get_manisfest_bpm() {
+    if( params.manifest_bpm == "" ) {
+        error: println "ERROR: Please provide a value for 'manifest_bpm' in the 'configs/params.config' file"
+    }
+    else {
+        return channel.fromPath(params.manifest_bpm)
+    }
 }
 
-def getClusterFile() {
-    return channel.fromPath(params.cluster_file)
+def get_manisfest_csv() {
+    if( params.manifest_csv == "" ) {
+        error: println "ERROR: Please provide a value for 'manifest_csv' in the 'configs/params.config' file"
+    }
+    else {
+        return channel.fromPath(params.manifest_csv) 
+    }
 }
 
-def getIntensities() {
-    return channel.fromPath(params.idat_dir + './*', type: 'dir')
+def get_cluster_file() {
+    if ( params.cluster_file == "" ) {
+        error: println "ERROR: Please provide a value for 'cluster_file' in the 'configs/params.config' file"
+    }
+    else {
+        return channel.fromPath(params.cluster_file)
+    }
 }
 
-def getVcf() {
+def get_intensities() {
+    if( params.idat_dir == "" ) {
+        error: println "\nERROR: Oops! forgot to provide a value for 'idat_dir' in the 'configs/params.config' file?\n"
+    }
+    else {
+        return channel
+            .fromPath(params.idat_dir + './*', type: 'any')
+            .map { idat -> 
+                if( idat.isDirectory() ) {
+                    idat
+                }
+                else {
+                    error: println "\nERROR: gencall works on folders containing intensity files. \n\
+                    This workflow works on the parent folder containing the intensity sub-folders. \n\
+                    Please provide the parent folder instead.\n"
+                }
+            }
+    }
+}
+
+
+
+/**********************************************
+def get_vcf() {
     return channel.fromPath(params.input_vcf)
 }
 
-def getChainFile() {
+def get_chain_file() {
     return channel.fromPath(params.chain_file)
 }
+***********************************************/
 
-process getGtc() {
+
+process get_gtc() {
     tag "processing ${intensity}"
     label 'idat_to_gtc'
     label 'gencall'
