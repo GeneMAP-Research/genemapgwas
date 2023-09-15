@@ -6,7 +6,7 @@ bcftools \
    --csv ${params.manifest_csv} \
    --egt ${params.cluster_file} \
    --gtcs ${gtc_list} \
-   --fasta-ref ${params.ref_fasta} \
+   --fasta-ref ${params.fasta_ref} \
    --extra "${params.output_prefix}_genotype_stats.tsv" | \
  bcftools \
    sort \
@@ -17,7 +17,7 @@ bcftools \
    --no-version \
    -Oz \
    -c x \
-   -f ${params.ref_fasta} | \
+   -f ${params.fasta_ref} | \
    tee "${params.output_prefix}.vcf.gz" | \
  bcftools \
    index \
