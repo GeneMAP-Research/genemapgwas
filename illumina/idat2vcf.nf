@@ -7,7 +7,7 @@ include {
     get_manisfest_csv;
     get_cluster_file;
     get_intensities;
-    get_gtc;
+    convert_idat_to_gtc;
     get_gtc_list;
     convert_gtc_to_vcf_hg19;
     convert_gtc_to_vcf_hg38;
@@ -26,7 +26,7 @@ workflow {
         .combine(intensity)
         .set { gtcall_input }
 
-    gtc_list = get_gtc(gtcall_input).collect()
+    gtc_list = convert_idat_to_gtc(gtcall_input).collect()
     gtc_file_list = get_gtc_list(gtc_list)
 
     if(params.build_ver == 'hg19') {

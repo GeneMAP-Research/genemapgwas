@@ -62,11 +62,6 @@ def get_intensities() {
 }
 
 
-/*
-def get_list_of_gtcs() {
-    return channel.fromPath( "${params.output_dir}/gtcs/" + gtc_list.txt )
-}
-*/
 
 /**********************************************
 def get_vcf() {
@@ -79,7 +74,7 @@ def get_chain_file() {
 ***********************************************/
 
 
-process get_gtc() {
+process convert_idat_to_gtc() {
     tag "processing ${intensity}"
     label 'idat_to_gtc'
     label 'gencall'
