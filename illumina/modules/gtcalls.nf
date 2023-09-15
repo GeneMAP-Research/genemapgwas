@@ -47,7 +47,7 @@ def get_intensities() {
     }
     else {
         return channel
-            .fromPath(params.idat_dir + './*', type: 'any')
+            .fromPath(params.idat_dir + './*', type: 'dir')
             .map { idat -> 
                 if( idat.isDirectory() ) {
                     idat
