@@ -27,7 +27,7 @@ workflow {
 	println "CDIR    = ${params.containers_dir}"
 	println ""
 
-	//call_genotypes()
+	call_genotypes()
 	plink()
 }
 
