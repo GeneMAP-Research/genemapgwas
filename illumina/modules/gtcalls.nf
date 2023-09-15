@@ -62,6 +62,11 @@ def get_intensities() {
 }
 
 
+/*
+def get_list_of_gtcs() {
+    return channel.fromPath( "${params.output_dir}/gtcs/" + gtc_list.txt )
+}
+*/
 
 /**********************************************
 def get_vcf() {
@@ -95,7 +100,7 @@ process get_gtc() {
 process get_gtc_list() {
     tag "retrieving list of gtc files ..."
     publishDir \
-        path: "${params.output_dir}/gtcs",
+        path: "${params.output_dir}/gtcs", \
         mode: 'copy'
     input:
         path gtc_list
@@ -107,20 +112,22 @@ process get_gtc_list() {
         """
 }
 
-process convert_gtc_to_vcf() {
+process convert_gtc_to_vcf_hg19() {
     tag "processing GTC2VCF"
     label 'gencall'
     label 'gtc_to_vcf'
     publishDir \
         path: "${params.output_dir}/vcf", \
         mode: 'copy'
+    input:
+        path gtc_list
     output:
         tuple \
             path("${params.output_prefix}.vcf.gz"), \
             path("${params.output_prefix}.vcf.gz.tbi"), \
             path("${params.output_prefix}_genotype_stats.tsv")
     script:
-        template "convert_gtc2vcf.sh"
+        template "convert_gtc2vcf_hg19.sh"
 }
 
 process convert_gtc_to_vcf_hg38() {
@@ -130,6 +137,8 @@ process convert_gtc_to_vcf_hg38() {
     publishDir \
         path: "${params.output_dir}/vcf", \
         mode: 'copy'
+    input:
+        path gtc_list
     output:
         tuple \
             path("${params.output_prefix}.vcf.gz"), \
