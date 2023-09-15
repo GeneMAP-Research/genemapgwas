@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-workflow info_msg {
+workflow {
 	println "IDAT to VCF: TEST"
 	println ""
 	println "IDIR    = ${params.idat_dir}"
@@ -27,23 +27,13 @@ workflow info_msg {
 	println "CDIR    = ${params.containers_dir}"
 	println ""
 
-	//call_genotypes()
+	call_genotypes()
+	plink()
+	//display_text()
 	
 }
 
-workflow plink_help {
-	plink()
-	emit: plink.out
-}
 
-workflow text_display {
-	display_text()	
-}
-
-workflow {
-	plink_help()
-	display_text(plink.out)
-}
 
 workflow.onComplete { 
 	println "Workflow completed at:	${workflow.complete}"
