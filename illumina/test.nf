@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-workflow {
+workflow info_msg {
 	println "IDAT to VCF: TEST"
 	println ""
 	println "IDIR    = ${params.idat_dir}"
@@ -27,8 +27,22 @@ workflow {
 	println "CDIR    = ${params.containers_dir}"
 	println ""
 
-	call_genotypes()
+	//call_genotypes()
+	
+}
+
+workflow plink_help {
 	plink()
+	emit: plink.out
+}
+
+workflow text_display {
+	display_text()	
+}
+
+workflow {
+	plink_help()
+	display_text(plink.out)
 }
 
 workflow.onComplete { 
@@ -65,6 +79,8 @@ process plink() {
 	//debug true
 	echo true
 
+	output:
+		val "${params.fasta_ref}"
 	script:
 		"""
 		plink2 \
@@ -73,5 +89,17 @@ process plink() {
 
 
 		echo ${params.fasta_ref}
+		"""
+}
+
+process display_text() {
+	echo true
+	//input:
+	//	val text
+	output:
+		val out_text
+	script:
+		"""
+		echo text
 		"""
 }
