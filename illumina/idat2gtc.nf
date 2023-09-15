@@ -8,6 +8,7 @@ include {
     get_cluster_file;
     get_intensities;
     get_gtc;
+    get_gtc_list;
 } from "${projectDir}/modules/gtcalls.nf"
 
 
@@ -20,5 +21,6 @@ workflow {
         .combine(cluster)
         .combine(intensity)
         .set { gtcall_input }
-    gtc_list = get_gtc(gtcall_input).collect().flatten().view()
+    gtc_list = get_gtc(gtcall_input).collect().flatten()
+    get_gtc_list(gtc_list).view()
 }

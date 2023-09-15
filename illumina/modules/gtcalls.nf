@@ -78,24 +78,43 @@ process get_gtc() {
     tag "processing ${intensity}"
     label 'idat_to_gtc'
     label 'gencall'
+    publishDir \
+        path: "${params.output_dir}/gtcs", \
+        mode: 'copy'
     input:
         tuple \
             path(manifest), \
             path(cluster), \
             path(intensity)
     output:
-        publishDir path: "${params.output_dir}/gtcs", mode: 'copy'
         path "*.gtc"
     script:
         template "run_gencall.sh"
 }
 
-process convertGtc2vcf() {
+process get_gtc_list() {
+    tag "retrieving list of gtc files ..."
+    publishDir \
+        path: "${params.output_dir}/gtcs",
+        mode: 'copy'
+    input:
+        path gtc_list
+    output:
+        path "*.txt"
+    script:
+        """
+        ls *.gtc > gtc_list.txt
+        """
+}
+
+process convert_gtc_to_vcf() {
     tag "processing GTC2VCF"
     label 'gencall'
     label 'gtc_to_vcf'
+    publishDir \
+        path: "${params.output_dir}/vcf", \
+        mode: 'copy'
     output:
-        publishDir path: "${params.output_dir}/vcf", mode: 'copy'
         tuple \
             path("${params.output_prefix}.vcf.gz"), \
             path("${params.output_prefix}.vcf.gz.tbi"), \
@@ -104,12 +123,14 @@ process convertGtc2vcf() {
         template "convert_gtc2vcf.sh"
 }
 
-process convertGtc2vcfHg38() {
+process convert_gtc_to_vcf_hg38() {
     tag "processing GTC2VCF"
     label 'gencall'
     label 'gtc_to_vcf'
+    publishDir \
+        path: "${params.output_dir}/vcf", \
+        mode: 'copy'
     output:
-        publishDir path: "${params.output_dir}/vcf", mode: 'copy'
         tuple \
             path("${params.output_prefix}.vcf.gz"), \
             path("${params.output_prefix}.vcf.gz.tbi"), \
@@ -118,30 +139,4 @@ process convertGtc2vcfHg38() {
         template "convert_gtc2vcf_hg38.sh"
 }
 
-process liftBuildToHg38() {
-    tag "Lifting over ${vcf} to GRCh38"
-    label 'gatk'
-    label 'lift_over'
-    input:
-        tuple \
-            path(vcf), \
-            path(chain_file)
-    output:
-        publishDir path: "${params.output_dir}/vcf", mode: 'copy'
-        tuple \
-            path("${params.output_prefix}_lifted_over.vcf.gz"), \
-            path("${params.output_prefix}_rejected_variants.vcf.gz")
-    script:
-        """
-        gatk \
-            --java-options "-Xmx${task.memory.toGiga()}g -XX:ParallelGCThreads=${task.cpus}" \
-            LiftoverVcf \
-            --MAX_RECORDS_IN_RAM 100000 \
-            -I ${vcf} \
-            -O "${params.output_prefix}_lifted_over.vcf.gz" \
-            -C ${chain_file} \
-            --REJECT "${params.output_prefix}_rejected_variants.vcf.gz" \
-            -R ${params.target_ref} \
-            --CREATE_INDEX true
-        """
-}
+
