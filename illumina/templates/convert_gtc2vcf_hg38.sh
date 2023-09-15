@@ -5,7 +5,7 @@ bcftools \
    --bpm ${params.manifest_bpm} \
    --csv ${params.manifest_csv} \
    --egt ${params.cluster_file} \
-   --gtcs ${params.gtc_list} \
+   --gtcs ${gtc_list} \
    --adjust-clusters \
    --use-gtc-sample-names \
    --sam-flank ${params.bam_alignment_file} \

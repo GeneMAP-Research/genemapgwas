@@ -5,7 +5,7 @@ bcftools \
    --bpm ${params.manifest_bpm} \
    --csv ${params.manifest_csv} \
    --egt ${params.cluster_file} \
-   --gtcs ${params.gtc_list} \
+   --gtcs ${gtc_list} \
    --fasta-ref ${params.ref_fasta} \
    --extra "${params.output_prefix}_genotype_stats.tsv" | \
  bcftools \
