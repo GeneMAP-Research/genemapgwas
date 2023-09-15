@@ -79,8 +79,7 @@ process convert_idat_to_gtc() {
     label 'idat_to_gtc'
     label 'gencall'
     publishDir \
-        path: "${params.output_dir}/gtcs", \
-        mode: 'copy'
+        path: "${params.output_dir}/gtcs"
     input:
         tuple \
             path(manifest), \
