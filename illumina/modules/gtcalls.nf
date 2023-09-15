@@ -103,7 +103,7 @@ process get_gtc_list() {
         path "*.txt"
     script:
         """
-        ls *.gtc > gtc_list.txt
+        realpath ./*.gtc > gtc_list.txt
         """
 }
 
