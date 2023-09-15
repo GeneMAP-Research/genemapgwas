@@ -5,7 +5,7 @@ iaap-cli \
    ${manifest} \
    ${cluster} \
    . \
-   --idat-folder \$(realpath ${intensity}) \
+   --idat-folder ${intensity} \
    --output-gtc \
    --gender-estimate-call-rate-threshold 0.95 \
    --gender-estimate-x-het-rate-threshold 0.2 \
