@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 workflow {
-  println "IDAT to VCF: TEST"
+  println "\n        IDAT to VCF: TEST"
   println ""
   println "       IDAT DIR = ${params.idat_dir}"
   println "   BPM MANIFEST = ${params.manifest_bpm}"
