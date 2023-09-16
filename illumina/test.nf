@@ -22,7 +22,7 @@ workflow {
   println "NAME    = ${params.output_prefix}"
   println "ODIR    = ${params.output_dir}"
   println "ACCOUNT = ${params.account}"
-  println "QUEUE   = ${params.queue}"
+  println "QUEUE   = ${params.partition}"
   println "TASKS   = ${params.njobs}"
   println "CDIR    = ${params.containers_dir}"
   println ""
@@ -48,7 +48,8 @@ process call_genotypes() {
   tag "processing ... ${params.idat_dir}"
   label 'gencall'
   publishDir path: "${params.output_dir}/test"
-  debug true
+  //debug true
+  echo true
   
   script:
     """		
