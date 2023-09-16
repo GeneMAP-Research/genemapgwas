@@ -11,7 +11,7 @@ workflow {
   println "cluster_file    = ${params.cluster_file}"
 
   if(params.build_ver == 'hg19') {
-    println "fasta_ref     = ${params.fasta_ref}"
+    println "fasta_ref      = ${params.fasta_ref}"
   }
   else {
     println "fasta_ref     = ${params.fasta_ref}"
@@ -27,7 +27,6 @@ workflow {
   
   //call_genotypes()
   plink()
-  //display_text()
 	
 }
 
@@ -72,13 +71,5 @@ process plink() {
     plink2 \
     --help \
     --file
-    """
-}
-
-process display_text() {
-  echo true
-  script:
-    """
-    echo text
     """
 }
