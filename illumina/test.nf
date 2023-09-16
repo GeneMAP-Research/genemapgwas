@@ -5,26 +5,25 @@ nextflow.enable.dsl = 2
 workflow {
   println "IDAT to VCF: TEST"
   println ""
-  println "IDIR    = ${params.idat_dir}"
-  println "BPM     = ${params.manifest_bpm}"
-  println "CSV     = ${params.manifest_csv}"
-  println "CST     = ${params.cluster_file}"
-  println "BVER	 = ${params.build_ver}"
+  println "       IDAT DIR = ${params.idat_dir}"
+  println "   BPM MANIFEST = ${params.manifest_bpm}"
+  println "   CSV MANIFEST = ${params.manifest_csv}"
+  println "   CLUSTER FILE = ${params.cluster_file}"
+  println "  BUILD VERSION = ${params.build_ver}"
 
   if(params.build_ver == 'hg19') {
-	  println "FASTA   = ${params.fasta_ref}"
+    println "    REFERENCE = ${params.fasta_ref}"
   }
   else {
-    println "FASTA   = ${params.fasta_ref}"
-    println "BAM     = ${params.bam_alignment}"
+    println "    REFERENCE = ${params.fasta_ref}"
+    println "BAM ALIGNMENT = ${params.bam_alignment}"
   }
 
-  println "NAME    = ${params.output_prefix}"
-  println "ODIR    = ${params.output_dir}"
-  println "ACCOUNT = ${params.account}"
-  println "QUEUE   = ${params.partition}"
-  println "TASKS   = ${params.njobs}"
-  println "CDIR    = ${params.containers_dir}"
+  println "  OUTPUT PREFIX = ${params.output_prefix}"
+  println "     OUTPUT DIR = ${params.output_dir}"
+  println "ACCOUNT/PROJECT = ${params.account}"
+  println "QUEUE/PARTITION = ${params.partition}"
+  println " CONTAINERS DIR = ${params.containers_dir}"
   println ""
   
   //call_genotypes()
