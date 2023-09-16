@@ -1,6 +1,6 @@
 # gwas workflow
 
-See the documentation [here](https://genemap-research.github.io/docs/workflows/gwas/)
+See the documentation https://genemap-research.github.io/docs/workflows/gwas/
 
 ---
 
