@@ -20,9 +20,9 @@ workflow {
 
   println "output_prefix   = ${params.output_prefix}"
   println "output_dir      = ${params.output_dir}"
-  println "account         = ${params.account}"
-  println "partition       = ${params.partition}"
-  println "containers_dir  = ${params.containers_dir}"
+  println "containers_dir  = PATH WHERE CONTAINERS ARE STORED"
+  println "account         = ${params.account}        # CHANGE TO YOURS"
+  println "partition       = ${params.partition}      # CHANGE TO YOURS"
   println ""
   
   //call_genotypes()
