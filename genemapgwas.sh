@@ -92,6 +92,15 @@ includeConfig \"\${projectDir}/configs/profile-selector.config\"
 """
 }
 
+function testconfig() { #params passed as arguments
+
+# $indir $bpm $csv $cluster $fasta $bam $out $outdir $thrds
+echo """`setglobalparams`
+includeConfig \"\${projectDir}/configs/test.config\"
+}
+""" >> test.config
+}
+
 function idatconfig() { #params passed as arguments
 
 #check and remove config file if it exists
