@@ -9,6 +9,7 @@ function usage() {
 
            commands:
            ---------
+               test: run test to see if workflow installed correctly
            idat2vcf: convert illumina IDAT to VCF
                  qc: perform gwas quality control
               assoc: run association tests
