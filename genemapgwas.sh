@@ -86,6 +86,10 @@ function qcusage() {
 }
 
 function setglobalparams() {
+
+#check and remove test config file if it exists
+[ -e test.config ] && rm test.config
+
 #- create the project nextflow config file
 echo """includeConfig \"\${projectDir}/nextflow.config\"
 includeConfig \"\${projectDir}/configs/profile-selector.config\"
@@ -97,7 +101,6 @@ function testconfig() { #params passed as arguments
 # $indir $bpm $csv $cluster $fasta $bam $out $outdir $thrds
 echo """`setglobalparams`
 includeConfig \"\${projectDir}/configs/test.config\"
-}
 """ >> test.config
 }
 
@@ -148,6 +151,12 @@ if [ $# -lt 1 ]; then
    usage; 1>&2; exit 1;
 else
    case $1 in
+      test)
+         #pass profile as argument
+         #checkprofile $2;
+         profile='local,singularity,hg19'
+         testconfig
+      ;;
       idat2vcf)
          #pass profile as argument
          checkprofile $2;
