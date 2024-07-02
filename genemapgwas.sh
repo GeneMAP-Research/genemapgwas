@@ -13,6 +13,7 @@ function usage() {
            idat2vcf: convert illumina IDAT to VCF
                  qc: perform gwas quality control
               assoc: run association tests
+          postimpqc: run post-imputation QC
 
 
            profiles: <executor>,<container>,<reference>
@@ -86,6 +87,11 @@ function qcusage() {
    """
 }
 
+
+function piqc() {
+
+}
+
 function setglobalparams() {
 #- create the project nextflow config file
 echo """includeConfig \"\${projectDir}/nextflow.config\"
@@ -147,6 +153,23 @@ params {
 """ >> ${3}-qc.config
 }
 
+
+function piconfig() {
+echo """
+params {
+    sample_list = ''
+    vcf_dir = ''
+    output_dir = ''
+    out_prefix = ''
+    maf = 
+    max_af = 
+    r2 = 
+    r2_name = 
+}
+
+`setglobalparams`
+""" >> 
+}
 
 if [ $# -lt 1 ]; then
    usage; 1>&2; exit 1;
