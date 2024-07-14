@@ -1,16 +1,4 @@
-#!/usr/bin/env nextflow
-
-nextflow.enable.dsl = 2
-
-workflow {
-    println "\nEXTRACT REQUIRED SAMPLES FROM IMPUTED VCF FILES TO MAKE NEW VCFs\n"
-    vcf = get_vcf()
-    vcf_fileset = getVcfIndex(vcf)
-    new_vcf = getNewVcf(vcf_fileset)
-    fixVcf(new_vcf).view()
-}
-
-def get_vcf() {
+def getVcf() {
     return channel.fromPath( params.vcf_dir + "*.vcf.gz" )
                   .map { vcf -> tuple(vcf.simpleName.replaceAll(/chr/,''), vcf) }
 }
@@ -38,7 +26,7 @@ process getVcfIndex() {
         """
 }
 
-process getNewVcf() {
+process fixVcfgetNewVcf() {
     tag "processing ${vcf}"
     label 'smallMemory'
     label 'bcftools'
@@ -108,7 +96,6 @@ process fixVcf() {
             -ft \
             --threads ${task.cpus} \
             -o chr${chrom}.${params.out_prefix}.dose.vcf.gz.tbi
-            
         """
 }
 

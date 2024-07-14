@@ -15,6 +15,7 @@ function usage() {
         plink-assoc: run association tests using PLINK2
         saige-assoc: run association tests using SAIGE
         emmax-assoc: run association tests using EMMAX
+  clean-imputed-vcf: clean imputed VCF files
 
 
            profiles: <executor>,<container>,<reference>
@@ -164,7 +165,7 @@ function qc_usage() {
 
 
 function plink_assoc_usage() {
-   echo -e "\nUsage: genemapgwas qc <profile> [options] ..."
+   echo -e "\nUsage: genemapgwas plink-assoc <profile> [options] ..."
    echo """
            options:
            --------
@@ -185,6 +186,26 @@ function plink_assoc_usage() {
    """
 }
 
+function clean_imputed_vcf() {
+    echo -e "\nUsage: genemapgwas clean-imputed-vcf <profile> [options] ..."
+    echo """
+           options:
+           --------
+	   --sample_list     : (optional) list of samples to include (single column, one sample ID per line) [default: NULL]
+                               If not provided, all samples will be included.
+           --vcf_dir         : (required) directory cpntaining vcf files.
+	   --output_dir      : (optional) path to save output files [default: "vcf_dir/../clean/"].
+	   --out             : (optional) suffix to add to output file name.
+	   --min_maf         : (optional) minimum minor allele freqeuncy [default: 0.05].
+           --max_maf         : (optional) maximum minor allele freqeuncy [default: 1].
+	   --r2              : (optional) minimum imputation accuray threshold [default: 0.3].
+	   --r2_name         : (optional) name of imputation accuracy parameter in VCF file INFO field [default: R2].
+                               Example: 'INFO' for SANGER imputation and 'R2' for most other tools.
+           --threads         : (optional) number of computer cpus to use  [default: 1].
+           --njobs           : (optional) number of jobs to submit at once [default: 10]  [default: 5].
+           --help            : print this help message.
+    """
+}
 
 function set_global_params() {
 #- create the project nextflow config file
@@ -350,6 +371,28 @@ params {
     max_af =
     r2 =
     r2_name =
+
+  /*****************************************************************************************
+           -sample_list     : (optional) list of samples to include (single column, one sample ID per line) [default: NULL]
+                               If not provided, all samples will be included.
+           -vcf_dir         : (required) directory cpntaining vcf files.
+           -output_dir      : (optional) path to save output files [default: "vcf_dir/../clean/"].
+           -out: 
+	     (optional) suffix to add to output file name.
+           -min_maf: 
+	     (optional) minimum minor allele freqeuncy [default: 0.05].
+           -max_maf: 
+	     (optional) maximum minor allele freqeuncy [default: 1].
+           -r2: 
+	     (optional) minimum imputation accuray threshold [default: 0.3].
+           -r2_name: 
+	     (optional) name of imputation accuracy parameter in VCF file INFO field [default: R2].
+             Example: 'INFO' for SANGER imputation and 'R2' for most other tools.
+           -threads: 
+	     (optional) number of computer cpus to use  [default: 1].
+           -njobs: 
+	     (optional) number of jobs to submit at once [default: 10]  [default: 5].
+  *******************************************************************************************/
 }
 
 `setglobalparams`
