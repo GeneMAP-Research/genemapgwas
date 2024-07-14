@@ -26,9 +26,9 @@ process getVcfIndex() {
         """
 }
 
-process fixVcfgetNewVcf() {
+process getNewVcf() {
     tag "processing ${vcf}"
-    label 'smallMemory'
+    label 'mediumMemory'
     label 'bcftools'
     input:
         tuple \
@@ -41,6 +41,21 @@ process fixVcfgetNewVcf() {
             path("chr${chrom}.${params.output_prefix}.tmp.vcf.gz"), \
             path(vcf_index)
     script:
+    if(params.sample_list == 'NULL')
+        """
+        bcftools \
+            view \
+            -v snps,indels \
+            -m2 -M2 \
+            -i "INFO/${params.r2_name} >= ${params.r2}" \
+            --min-af ${params.maf} \
+            --max-af ${params.max_af} \
+            -Oz \
+            -o chr${chrom}.${params.output_prefix}.tmp.vcf.gz \
+            --threads ${task.cpus} \
+            ${vcf}
+        """
+    else
         """
         bcftools \
             view \

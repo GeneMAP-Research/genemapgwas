@@ -11,7 +11,7 @@ include {
 
 workflow {
     println "\nEXTRACT REQUIRED SAMPLES FROM IMPUTED VCF FILES TO MAKE NEW VCFs\n"
-    vcf = get_vcf()
+    vcf = getVcf()
     vcf_fileset = getVcfIndex(vcf)
     new_vcf = getNewVcf(vcf_fileset)
     fixVcf(new_vcf).view()

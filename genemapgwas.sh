@@ -186,7 +186,7 @@ function plink_assoc_usage() {
    """
 }
 
-function clean_imputed_vcf() {
+function clean_imputed_vcf_usage() {
     echo -e "\nUsage: genemapgwas clean-imputed-vcf <profile> [options] ..."
     echo """
            options:
@@ -205,13 +205,6 @@ function clean_imputed_vcf() {
            --njobs           : (optional) number of jobs to submit at once [default: 10]  [default: 5].
            --help            : print this help message.
     """
-}
-
-function set_global_params() {
-#- create the project nextflow config file
-echo """includeConfig \"\${projectDir}/nextflow.config\"
-includeConfig \"\${projectDir}/configs/profile-selector.config\"
-"""
 }
 
 function test_config() { #params passed as arguments
@@ -360,24 +353,31 @@ params {
 """ >> ${4}-plink-assoc.config
 }
 
-function piconfig() {
+function clean_imputed_vcf_config() {
+#check and remove config file if it exists
+[ -e ${4}-clean-imputed-vcf.config ] && rm ${4}-clean-imputed-vcf.config
+
+#clean_imputed_vcf_config $sample_list $vcf_dir $output_dir $out $min_maf $max_maf $r2 $r2_name $threads $njobs
+
 echo """
 params {
-    sample_list = ''
-    vcf_dir = ''
-    output_dir = ''
-    out_prefix = ''
-    maf =
-    max_af =
-    r2 =
-    r2_name =
+    sample_list = '${1}'
+    vcf_dir = '${2}'
+    output_dir = '${3}'
+    output_prefix = '${4}'
+    maf = ${5}
+    max_af = ${6}
+    r2 = ${7}
+    r2_name = '${8}'
+    threads = ${9}
+    njobs = ${10}
 
   /*****************************************************************************************
-           -sample_list     : (optional) list of samples to include (single column, one sample ID per line) [default: NULL]
+  -sample_list     : (optional) list of samples to include (single column, one sample ID per line) [default: NULL]
                                If not provided, all samples will be included.
            -vcf_dir         : (required) directory cpntaining vcf files.
            -output_dir      : (optional) path to save output files [default: "vcf_dir/../clean/"].
-           -out: 
+           -output_prefix: 
 	     (optional) suffix to add to output file name.
            -min_maf: 
 	     (optional) minimum minor allele freqeuncy [default: 0.05].
@@ -395,8 +395,8 @@ params {
   *******************************************************************************************/
 }
 
-`setglobalparams`
-""" >>
+`set_global_params`
+""" >> ${4}-clean-imputed-vcf.config
 }
 
 if [ $# -lt 1 ]; then
@@ -615,7 +615,75 @@ else
 	     $threads \
 	     $njobs
          #echo `nextflow -c ${out}-qc.config run qualitycontrol.nf -profile $profile -w ${output_dir}/work/`
-      ;;      
+      ;;
+      clean-imputed-vcf)
+         #pass profile as argument
+         check_profile $2;
+         profile=$2;
+         shift;
+         if [ $# -lt 2 ]; then
+            clean_imputed_vcf_usage; 1>&2;
+            exit 1;
+         fi
+
+         prog=`getopt -a --long "help,sample_list:,out:,output_dir:,vcf_dir:,threads:,min_maf:,max_maf:,r2:,r2_name:,njobs:" -n "${0##*/}" -- "$@"`;
+
+         #- defaults
+         sample_list=NULL
+         vcf_dir=NULL
+	 output_dir=NULL
+         out=myout
+         min_maf=0.05
+         max_maf=1
+         r2=0.3
+	 r2_name=R2
+         threads=1
+         njobs=5
+
+         eval set -- "$prog"
+
+         while true; do
+            case $1 in
+               --sample_list) sample_list="$2"; shift 2;;
+               --out) out="$2"; shift 2;;
+               --output_dir) output_dir="$2"; shift 2;;
+               --vcf_dir) vcf_dir="$2"; shift 2;;
+               --threads) threads="$2"; shift 2;;
+               --min_maf) min_maf="$2"; shift 2;;
+               --max_maf) max_maf="$2"; shift 2;;
+               --r2) r2="$2"; shift 2;;
+               --r2_name) r2_name="$2"; shift 2;;
+               --njobs) njobs="$2"; shift 2;;
+               --help) shift; clean_imputed_vcf_usage; 1>&2; exit 1;;
+               --) shift; break;;
+               *) shift; clean_imputed_vcf_usage; 1>&2; exit 1;;
+            esac
+            continue; shift;
+         done
+         check_required_params \
+             vcf_dir,$vcf_dir && \
+         check_optional_params \
+             out,$out \
+             output_dir,$output_dir \
+             min_maf,$min_maf \
+             max_maf,$max_maf \
+             r2,$r2 \
+             r2_name,$r2_name \
+             threads,$threads \
+             njobs,$njobs && \
+         clean_imputed_vcf_config \
+             $sample_list \
+             $vcf_dir \
+             $output_dir \
+             $out \
+             $min_maf \
+             $max_maf \
+             $r2 \
+             $r2_name \
+             $threads \
+             $njobs
+         #echo `nextflow -c ${out}-qc.config run qualitycontrol.nf -profile $profile -w ${output_dir}/work/`
+      ;;   	 
       *) echo -e $usage
    esac
 
