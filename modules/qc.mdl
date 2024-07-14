@@ -475,7 +475,6 @@ process performPca() {
         plink2 \
             --bfile ${bed.baseName} \
             --indep-pairwise 50 10 0.2 \
-<<<<<<< HEAD
             --king-cutoff 0.25 \
             --maf 0.05 \
             --out ${bed.baseName}
@@ -483,13 +482,11 @@ process performPca() {
             --bfile ${bed.baseName} \
             --maf 0.05 \
             --king-cutoff 0.25 \
-=======
             --maf 0.01 \
             --out ${bed.baseName}
         plink2 \
             --bfile ${bed.baseName} \
             --maf 0.01 \
->>>>>>> fd7d036d87f83243a15e7daa7a2cf5c1eec692b3
             --extract ${bed.baseName}.prune.in \
             --pca 10 \
             --out ${bed.baseName}

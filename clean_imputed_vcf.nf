@@ -7,7 +7,7 @@ include {
     getVcfIndex;
     getNewVcf;
     fixVcf
-} from "${params.projectDir}/modules/clean_imputed_vcf.mdl"
+} from "${projectDir}/modules/clean_imputed_vcf.mdl"
 
 workflow {
     println "\nEXTRACT REQUIRED SAMPLES FROM IMPUTED VCF FILES TO MAKE NEW VCFs\n"

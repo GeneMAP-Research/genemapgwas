@@ -38,7 +38,7 @@ process fixVcfgetNewVcf() {
     output:
         tuple \
             val(chrom), \
-            path("chr${chrom}.${params.out_prefix}.tmp.vcf.gz"), \
+            path("chr${chrom}.${params.output_prefix}.tmp.vcf.gz"), \
             path(vcf_index)
     script:
         """
@@ -52,7 +52,7 @@ process fixVcfgetNewVcf() {
             --min-af ${params.maf} \
             --max-af ${params.max_af} \
             -Oz \
-            -o chr${chrom}.${params.out_prefix}.tmp.vcf.gz \
+            -o chr${chrom}.${params.output_prefix}.tmp.vcf.gz \
             --threads ${task.cpus} \
             ${vcf}
         """
@@ -73,8 +73,8 @@ process fixVcf() {
     output:
         tuple \
             val(chrom), \
-            path("chr${chrom}.${params.out_prefix}.dose.vcf.gz"), \
-            path("chr${chrom}.${params.out_prefix}.dose.vcf.gz.tbi")
+            path("chr${chrom}.${params.output_prefix}.dose.vcf.gz"), \
+            path("chr${chrom}.${params.output_prefix}.dose.vcf.gz.tbi")
     script:
         """
         bcftools \
@@ -90,12 +90,12 @@ process fixVcf() {
             -m 2 \
             -M 2 \
             -O z | \
-            tee chr${chrom}.${params.out_prefix}.dose.vcf.gz | \
+            tee chr${chrom}.${params.output_prefix}.dose.vcf.gz | \
         bcftools \
             index \
             -ft \
             --threads ${task.cpus} \
-            -o chr${chrom}.${params.out_prefix}.dose.vcf.gz.tbi
+            -o chr${chrom}.${params.output_prefix}.dose.vcf.gz.tbi
         """
 }
 
