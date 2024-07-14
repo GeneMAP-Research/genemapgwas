@@ -79,17 +79,18 @@ function qcusage() {
            -o,--out		<prefix>	: output prefix [default: myout].
            -d,--outdir		<path>		: path to save output files [required].
            -p,--pheno_file 	<file>		: phenotype file with header ... [optional].
-           -t,--threads		<int>		: number threads [default: 1].
            -l,--hetlower	<float>		: lower heterozygosity value below which individuals are removed (optional) [default: mean-3SD].
            -u,--hetupper        <float>         : upper heterozygosity value above which individuals are removed (optional) [default: mean+3SD].
            -m,--maf		<float>		: minor allele frequency threshold [default: 0.05].
+           -r,--keep-related    <bool>          : keep related individuals: true, false [default: false].
+           -t,--threads         <int>           : number threads [default: 1].
            -h,--help                            : print this help message.
    """
 }
 
 
 function piqc() {
-
+echo "Post-imputation QC"
 }
 
 function setglobalparams() {
@@ -139,8 +140,7 @@ function qcconfig() { #params passed as arguments
 [ -e ${3}-qc.config ] && rm ${3}-qc.config
 
 # $bed $phe $out $outdir $hetl $hetu $thrds
-echo """`setglobalparams`
-
+echo """
 params {
    bfile            = '${1}'
    pheno_file       = '${2}'
@@ -148,8 +148,11 @@ params {
    output_dir       = '${4}'
    hetlower         = '${5}'
    hetupper         = '${6}'
-   threads          = ${7}
+   keep_related     = ${7}
+   threads          = ${8}
 }
+
+`setglobalparams`
 """ >> ${3}-qc.config
 }
 
@@ -168,7 +171,7 @@ params {
 }
 
 `setglobalparams`
-""" >> 
+""" >> postimp-qc.config
 }
 
 if [ $# -lt 1 ]; then
@@ -245,7 +248,7 @@ else
             exit 1;
          fi        
 
-         prog=`getopt -a -o "hb:o:d:p:t:l:u:m:" --long "help,bfile:,out:,outdir:,pheno_file:,threads:,hetlower:,hetupper:,maf:" -- "$@"`;
+         prog=`getopt -a -o "hrb:o:d:p:t:l:u:m:" --long "help,keep_related,bfile:,out:,outdir:,pheno_file:,threads:,hetlower:,hetupper:,maf:" -- "$@"`;
 
          #- defaults         
          bed=NULL
@@ -254,6 +257,7 @@ else
          outdir=NULL
          hetl=NULL
          hetu=NULL
+         keep_related=false
          thrds=1
          maf=0.05
           
@@ -265,10 +269,11 @@ else
                -o|--out) out="$2"; shift 2;;
                -d|--outdir) outdir="$2"; shift 2;;
                -p|--pheno_file) phe="$2"; shift 2;;
-               -t|--threads) thrds="$2"; shift 2;;
                -l|--hetlower) hetl="$2"; shift 2;;
                -u|--hetupper) hetu="$2"; shift 2;;
                -m|--maf) maf="$2"; shift 2;;
+               -r|--keep_related) keep_related=true; shift;;
+               -t|--threads) thrds="$2"; shift 2;;
                -h|--help) shift; qcusage; 1>&2; exit 1;;
                --) shift; break;;
                *) shift; qcusage; 1>&2; exit 1;;
@@ -283,7 +288,7 @@ else
             exit 1;
          else
          #setglobalparams;
-         qcconfig $bed $phe $out $outdir $hetl $hetu $thrds;
+         qcconfig $bed $phe $out $outdir $hetl $hetu $keep_related $thrds;
          #echo `nextflow -c ${out}-qc.config run qualitycontrol.nf -profile $profile -w ${outdir}/work/`
          fi
       ;;

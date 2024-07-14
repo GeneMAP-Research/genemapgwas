@@ -20,7 +20,8 @@ def getBed() {
 process checkDuplicateSampleIds() {
     tag "checking duplicate samples..."
     publishDir \
-        path: "${params.output_dir}/qc"
+        path: "${params.output_dir}/qc", \
+        mode: 'copy'
     input:
         tuple \
             val(bedname), \
@@ -37,8 +38,6 @@ process checkDuplicateSampleIds() {
 
 process removeDuplicateVars() {
     tag "romoving duplicate variants"
-    publishDir \
-        path: "${params.output_dir}/qc"
     label 'plink'
     input:
         tuple \
@@ -72,8 +71,6 @@ process removeDuplicateVars() {
 
 process getKingFormatFile() {
     tag "formatting data for KING..."
-    publishDir \
-        path: "${params.output_dir}/qc"
     label 'plink'
     input:
         tuple \
@@ -100,7 +97,7 @@ process getKingFormatFile() {
 process checkDuplicateAndRelatedIndivs() {
     tag "checking related and duplicate individuals..."
     publishDir \
-        path: "${params.output_dir}/qc/relatedness/",
+        path: "${params.output_dir}/qc/relatedness/", \
         mode: 'copy'
     label 'king'
     input:
@@ -111,10 +108,11 @@ process checkDuplicateAndRelatedIndivs() {
             path(log)
     output:
         tuple \
-            path("${params.out}_fail-relatedness-qc.txt"), \
+            path("${params.out}_fail-king-check.txt"), \
             path("${params.out}_king.seg"), \
             path("${params.out}_king_ibd1vsibd2.ps")
     script:
+    if(params.keep_related == false)
         """
         king \
             -b ${bed} \
@@ -125,7 +123,20 @@ process checkDuplicateAndRelatedIndivs() {
 
         awk '(\$8 == "Dup/MZ") || (\$8 == "FS") || (\$8 == "PO") || (\$8 == "2nd") {print \$1,\$2}' ${params.out}_king.seg | \
         sort | \
-        uniq > ${params.out}_fail-relatedness-qc.txt
+        uniq > ${params.out}_fail-king-check.txt
+        """
+    else
+        """
+        king \
+            -b ${bed} \
+            --ibdseg \
+            --degree 4 \
+            --rplot \
+            --prefix ${params.out}_king
+
+        awk '(\$8 == "Dup/MZ") {print \$1,\$2}' ${params.out}_king.seg | \
+        sort | \
+        uniq > ${params.out}_fail-king-check.txt
         """
 }
 
@@ -133,7 +144,9 @@ process checkDiscordantSex() {
     debug true
     tag "checking discordant sex..."
     publishDir \
-        path: "${params.output_dir}/qc"
+        pattern: "${params.out}_fail-sexcheck-qc.txt", \
+        path: "${params.output_dir}/qc", \
+        mode: 'copy'
     label 'plink'
     input:
         tuple \
@@ -198,7 +211,8 @@ process checkDiscordantSex() {
 process computeSampleMissingnesStats() {
     tag "calculating missingness statistics..."
     publishDir \
-        path: "${params.output_dir}/qc"
+        path: "${params.output_dir}/qc", \
+        mode: 'copy'
     label 'plink'
     input:
         tuple \
@@ -218,7 +232,7 @@ process computeSampleMissingnesStats() {
             --het \
             --missing \
             --out ${params.out}
- 
+
         sed -i 's/#//1' ${params.out}.het
         sed -i 's/#//1' ${params.out}.smiss
         """
@@ -228,7 +242,8 @@ process computeSampleMissingnesStats() {
 process checkSamplesMissingess() {
     tag "checking sample missingness..."
     publishDir \
-        path: "${params.output_dir}/qc"
+        path: "${params.output_dir}/qc", \
+        mode: 'copy'
     label 'king'
     input:
         tuple \
@@ -244,8 +259,6 @@ process checkSamplesMissingess() {
 
 process removePoorQualitySamples() {
     tag "excluding poor quality samples..."
-    publishDir \
-        path: "${params.output_dir}/qc"
     label 'plink'
     input:
         tuple \
@@ -279,9 +292,11 @@ process removePoorQualitySamples() {
 
 process checkPoorQualityVariants() {
     tag "checking poor quality snps..."
-    publishDir \
-        path: "${params.output_dir}/qc"
     label 'plink'
+    publishDir \
+        pattern: "${bed.baseName}-fail-diffmissing-qc.txt", \
+        path: "${params.output_dir}/qc", \
+        mode: 'copy'
     input:
         tuple \
             path(bed), \
@@ -293,7 +308,8 @@ process checkPoorQualityVariants() {
             path("${bed.baseName}_temp1.bed"), \
             path("${bed.baseName}_temp1.bim"), \
             path("${bed.baseName}_temp1.fam"), \
-            path("${bed.baseName}_temp1.log")
+            path("${bed.baseName}_temp1.log"), \
+            path("${bed.baseName}-fail-diffmissing-qc.txt")
     script:
 
     // check if case-control phenotype is present and perform differential missingness
@@ -306,8 +322,14 @@ process checkPoorQualityVariants() {
         # check phenotype in fam file
         pheno=\$(awk '{print \$6}' ${fam} | grep -vi -e '-9' -e 'NA' | sort | uniq | wc -l)
         if [ \$pheno -eq 2 ]; then
-            plink \
+            plink2 \
                 --bfile ${bed.baseName} \
+                --make-bed \
+                --king-cutoff 0.25 \
+                --out test-miss
+ 
+            plink \
+                --bfile test-miss \
                 --test-missing \
                 --out ${bed.baseName}-diffmissing
 
@@ -315,8 +337,10 @@ process checkPoorQualityVariants() {
                 ${bed.baseName}-diffmissing.missing \
                 > ${bed.baseName}-fail-diffmissing-qc.txt
         fi
+        ################################################################
         # if case-control absent, diff missingness result will be empty
         # and code will not break
+        ################################################################
         plink \
             --bfile ${bed.baseName} \
             --geno 0.05 \
@@ -339,6 +363,7 @@ process checkPoorQualityVariants() {
                     --bfile ${bed.baseName} \
                     --pheno ${params.pheno_file} \
                     --pheno-col-nums \$pheno_col \
+                    --king-cutoff 0.25 \
                     --make-bed \
                     --out ${bed.baseName}-pheno-updated
                 
@@ -365,14 +390,17 @@ process checkPoorQualityVariants() {
 process checkPalindromes() {
     tag "checking palindromic snps..."
     publishDir \
-        path: "${params.output_dir}/qc"
+        pattern: "${bed.baseName}*at-cg_snps.txt", \
+        path: "${params.output_dir}/qc", \
+        mode: 'copy'
     label 'rbase'
     input:
         tuple \
             path(bed), \
             path(bim), \
             path(fam), \
-            path(log)
+            path(log), \
+            path(difmis)
     output:
         tuple \
             path(bed), \
@@ -389,7 +417,7 @@ process checkPalindromes() {
 process removePoorQualityVariants() {
     tag "removing poor quality snps..."
     publishDir \
-        path: "${params.output_dir}/qc",
+        path: "${params.output_dir}/qc", \
         mode: 'copy'
     label 'plink'
     input:
@@ -427,7 +455,8 @@ process removePoorQualityVariants() {
 process performPca() {
     tag "running PCA..."
     publishDir \
-        path: "${params.output_dir}/qc"
+        path: "${params.output_dir}/qc", \
+        mode: 'copy'
     label 'plink'
     cache 'lenient'
     input:
@@ -446,11 +475,13 @@ process performPca() {
         plink2 \
             --bfile ${bed.baseName} \
             --indep-pairwise 50 10 0.2 \
+            --king-cutoff 0.25 \
             --maf 0.05 \
             --out ${bed.baseName}
         plink2 \
             --bfile ${bed.baseName} \
             --maf 0.05 \
+            --king-cutoff 0.25 \
             --extract ${bed.baseName}.prune.in \
             --pca 10 \
             --out ${bed.baseName}
@@ -461,7 +492,7 @@ process performPca() {
 process plotPca() {
     tag "plotting PCA..."
     publishDir \
-        path: "${params.output_dir}/qc",
+        path: "${params.output_dir}/qc", \
         mode: 'copy'
     label 'rbase'
     input:
