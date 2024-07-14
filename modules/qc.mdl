@@ -343,7 +343,7 @@ process checkPoorQualityVariants() {
         ################################################################
         plink \
             --bfile ${bed.baseName} \
-            --geno 0.05 \
+            --geno ${params.geno} \
             --hwe 1e-06 \
             --exclude ${bed.baseName}-fail-diffmissing-qc.txt \
             --make-bed \
@@ -379,7 +379,7 @@ process checkPoorQualityVariants() {
         done
         plink \
             --bfile ${bed.baseName} \
-            --geno 0.05 \
+            --geno ${params.geno} \
             --hwe 1e-06 \
             --exclude ${bed.baseName}-fail-diffmissing-qc.txt \
             --make-bed \
@@ -438,9 +438,9 @@ process removePoorQualityVariants() {
         """
         plink \
             --bfile ${bed.baseName} \
-            --maf 0.01 \
+            --maf ${params.maf} \
             --exclude ${palindromes} \
-            --mind 0.10 \
+            --mind ${params.mind} \
             --make-bed \
             --merge-x no-fail \
             --out ${params.out}-pass-qc
@@ -475,6 +475,7 @@ process performPca() {
         plink2 \
             --bfile ${bed.baseName} \
             --indep-pairwise 50 10 0.2 \
+<<<<<<< HEAD
             --king-cutoff 0.25 \
             --maf 0.05 \
             --out ${bed.baseName}
@@ -482,6 +483,13 @@ process performPca() {
             --bfile ${bed.baseName} \
             --maf 0.05 \
             --king-cutoff 0.25 \
+=======
+            --maf 0.01 \
+            --out ${bed.baseName}
+        plink2 \
+            --bfile ${bed.baseName} \
+            --maf 0.01 \
+>>>>>>> fd7d036d87f83243a15e7daa7a2cf5c1eec692b3
             --extract ${bed.baseName}.prune.in \
             --pca 10 \
             --out ${bed.baseName}

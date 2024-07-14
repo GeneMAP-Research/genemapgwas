@@ -44,14 +44,14 @@ plot(
   pch = 20,
   col = ifelse(mishet\$het.rate < hetlower, "brown", 
           ifelse(mishet\$het.rate > hetupper, "brown", 
-            ifelse(mishet\$mis.rate > 0.1, "brown", "black")))
+            ifelse(mishet\$mis.rate > ${params.mind}, "brown", "black")))
 )
-abline(v=c(hetlower,hetupper), h=0.1, lty=2)
+abline(v=c(hetlower,hetupper), h=${params.mind}, lty=2)
 dev.off()
 
 # Extract individuals that will be excluded from further analysis (who didn't pass the filter)
 # Individuals with mis.rate > 0.1 (10% missingness)
-fail_mis_qc <- mishet[mishet\$mis.rate > 0.1, ]
+fail_mis_qc <- mishet[mishet\$mis.rate > ${params.mind}, ]
 write.table(fail_mis_qc[,1:2], file = "fail-smiss-qc.txt", row.names = F, col.names = F, quote = F, sep = "\t")
 
 # Individuals with het.rate < hetlower and individuals with het.rate > hetupper
