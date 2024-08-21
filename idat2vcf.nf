@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
+nextflow.enable.moduleBinaries = true
 
 include {
   get_manisfest_bpm;
@@ -11,7 +12,7 @@ include {
   get_gtc_list;
   convert_gtc_to_vcf_hg19;
   convert_gtc_to_vcf_hg38;
-} from "${projectDir}/modules/gtcalls.nf"
+} from "${projectDir}/modules/gtcalls.mdl"
 
 
 workflow {
@@ -29,11 +30,11 @@ workflow {
   gtc_list = convert_idat_to_gtc(gtcall_input).collect()
   gtc_file_list = get_gtc_list(gtc_list)
 
-  if(params.build_ver == 'hg19') {
-    convert_gtc_to_vcf_hg19(gtc_file_list)
+  if(params.build_ver == 'hg38') {
+    convert_gtc_to_vcf_hg38(gtc_file_list)
   }
   else {
-    convert_gtc_to_vcf_hg38(gtc_file_list)
+    convert_gtc_to_vcf_hg19(gtc_file_list)
   }
 
 }
